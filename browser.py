@@ -1,6 +1,9 @@
 from url import URL
 
-def show(body):
+def show(body,scheme):
+    if scheme.startswith("view-source:"):
+        print(body)
+        return 
     inTag = False
     for ch in body:
         if  ch == "<":
@@ -11,8 +14,8 @@ def show(body):
             print(ch,end="")
 
 def load(url):
-    body = url.request()
-    show(body)
+    body,scheme = url.request()
+    show(body,scheme)
 
 if __name__ == "__main__":
     import sys

@@ -3,6 +3,9 @@ import ssl
 class URL:
     def __init__(self,url):
         self.scheme , url = url.split("://",1)
+        self.orignalscheme = self.scheme
+        if self.scheme.startswith("view-source"):
+            self.scheme = self.scheme.split(":")[1]
         assert self.scheme in ["http","https"]
         if self.scheme == "http":
             self.port = 80
@@ -29,8 +32,9 @@ class URL:
             ctx = ssl.create_default_context()
             soc = ctx.wrap_socket(soc,server_hostname=self.host)
         # creating a request
-        request = f"GET {self.path} HTTP/1.0\r\n"
+        request = f"GET {self.path} HTTP/1.1\r\n"
         request += f"Host: {self.host}\r\n"
+        request += f"connection:close\r\n"
         request += "\r\n"
         # we need to send request in the binary form so we are using encode
         soc.send(request.encode("utf8"))
@@ -49,5 +53,5 @@ class URL:
         assert "content-encoding" not in response_header
         content = response.read()
         soc.close()
-        return content
+        return content , self.orignalscheme
 
